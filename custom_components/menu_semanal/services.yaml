@@ -1,0 +1,42 @@
+generate:
+  fields:
+    week:
+      default: "current"
+      example: "next"
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "current"
+            - "next"
+
+check_ingredients:
+  fields:
+    week:
+      default: "current"
+      example: "next"
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "current"
+            - "next"
+    add_to_cesta:
+      default: false
+      selector:
+        boolean:
+
+get_menu:
+  fields:
+    week:
+      example: "current"
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "current"
+            - "next"
+    day:
+      example: "today"
+      selector:
+        text:

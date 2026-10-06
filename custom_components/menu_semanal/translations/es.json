@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Menú Semanal",
+        "description": "Se añadirá un planificador de comidas y cenas con su propio panel en la barra lateral, una tarjeta para tus paneles de control y los sensores «Comida de hoy» y «Cena de hoy». Si tienes Despensa y Cesta instaladas, podrás comprobar qué falta para el menú y añadirlo a la lista de la compra."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Menú Semanal ya está configurado."
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Menú Semanal no está configurado."
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Generar menú",
+      "description": "Genera las comidas y cenas de una semana con tus recetas (respeta los platos fijados y los huecos libres).",
+      "fields": {
+        "week": {
+          "name": "Semana",
+          "description": "«current» (esta semana), «next» (la que viene), una fecha (2026-10-12) o una semana ISO (2026-W42)."
+        }
+      }
+    },
+    "check_ingredients": {
+      "name": "Comprobar ingredientes",
+      "description": "Compara los ingredientes del menú con la Despensa y devuelve lo que falta. Opcionalmente lo añade a la Cesta.",
+      "fields": {
+        "week": {
+          "name": "Semana",
+          "description": "«current», «next», una fecha o una semana ISO."
+        },
+        "add_to_cesta": {
+          "name": "Añadir a la Cesta",
+          "description": "Añade lo que falta a la lista de la compra de Cesta."
+        }
+      }
+    },
+    "get_menu": {
+      "name": "Obtener el menú",
+      "description": "Devuelve el menú de una semana o de un día, con un texto listo para notificaciones.",
+      "fields": {
+        "week": {
+          "name": "Semana",
+          "description": "«current», «next», una fecha o una semana ISO."
+        },
+        "day": {
+          "name": "Día",
+          "description": "«today», «tomorrow», un día de la semana (lunes…) o una fecha. Si se indica, devuelve solo ese día."
+        }
+      }
+    }
+  }
+}

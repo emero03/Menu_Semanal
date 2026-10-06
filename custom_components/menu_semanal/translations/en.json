@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Weekly Menu",
+        "description": "Adds a lunch and dinner planner with its own sidebar panel, a dashboard card and the “Lunch today” and “Dinner today” sensors. With Despensa and Cesta installed you can check what the menu is missing and add it to the shopping list."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Weekly Menu is already configured."
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Weekly Menu is not configured."
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Generate menu",
+      "description": "Generates a week of lunches and dinners from your recipes (keeps pinned dishes and free slots).",
+      "fields": {
+        "week": {
+          "name": "Week",
+          "description": "“current”, “next”, a date (2026-10-12) or an ISO week (2026-W42)."
+        }
+      }
+    },
+    "check_ingredients": {
+      "name": "Check ingredients",
+      "description": "Compares the menu's ingredients with Despensa and returns what is missing. Optionally adds it to Cesta.",
+      "fields": {
+        "week": {
+          "name": "Week",
+          "description": "“current”, “next”, a date or an ISO week."
+        },
+        "add_to_cesta": {
+          "name": "Add to Cesta",
+          "description": "Adds what is missing to the Cesta shopping list."
+        }
+      }
+    },
+    "get_menu": {
+      "name": "Get menu",
+      "description": "Returns the menu for a week or a day, with a text ready for notifications.",
+      "fields": {
+        "week": {
+          "name": "Week",
+          "description": "“current”, “next”, a date or an ISO week."
+        },
+        "day": {
+          "name": "Day",
+          "description": "“today”, “tomorrow”, a weekday or a date. If set, only that day is returned."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menú Semanal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+/* Maqueta: barra lateral de Home Assistant + el panel real de Menú Semanal ocupando el resto.
+   Los tokens son las variables de tema de Home Assistant, para que el panel se vea como dentro de HA. */
+:root{
+  --primary-background-color:#fafafa;
+  --card-background-color:#ffffff;
+  --secondary-background-color:#eceeed;
+  --primary-text-color:#212121;
+  --secondary-text-color:#6f7472;
+  --divider-color:rgba(0,0,0,.12);
+  --primary-color:#009ac7;
+  --text-primary-color:#ffffff;
+  --error-color:#db4437;
+  --warning-color:#ffa600;
+  --success-color:#43a047;
+  --app-header-background-color:#fafafa;
+  --app-header-text-color:#212121;
+  --app-header-border-bottom:1px solid rgba(0,0,0,.12);
+  --sidebar-bg:#ffffff;
+  --sidebar-active:rgba(0,154,199,.12);
+  --strip-bg:#eef6f9;
+  --ha-font-family-body:Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary-background-color:#111314;
+  --card-background-color:#1c1e1f;
+  --secondary-background-color:#272a2b;
+  --primary-text-color:#e3e3e3;
+  --secondary-text-color:#9da2a0;
+  --divider-color:rgba(225,225,225,.12);
+  --app-header-background-color:#111314;
+  --app-header-text-color:#e3e3e3;
+  --app-header-border-bottom:1px solid rgba(225,225,225,.12);
+  --sidebar-bg:#1c1e1f;
+  --sidebar-active:rgba(0,154,199,.22);
+  --strip-bg:#14232a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --primary-background-color:#111314;
+  --card-background-color:#1c1e1f;
+  --secondary-background-color:#272a2b;
+  --primary-text-color:#e3e3e3;
+  --secondary-text-color:#9da2a0;
+  --divider-color:rgba(225,225,225,.12);
+  --app-header-background-color:#111314;
+  --app-header-text-color:#e3e3e3;
+  --app-header-border-bottom:1px solid rgba(225,225,225,.12);
+  --sidebar-bg:#1c1e1f;
+  --sidebar-active:rgba(0,154,199,.22);
+  --strip-bg:#14232a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--primary-background-color);color:var(--primary-text-color);font-family:var(--ha-font-family-body);font-size:14px}
+button{font:inherit;color:inherit}
+.emoji{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.strip{flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--strip-bg);border-bottom:1px solid var(--divider-color);font-size:13px;line-height:1.4;color:var(--secondary-text-color)}
+.strip p{flex:1;min-width:0;margin:0}
+.strip strong{color:var(--primary-text-color);font-weight:500}
+.strip button{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);font-weight:500;cursor:pointer}
+.strip button[aria-pressed=true]{background:var(--primary-color);border-color:var(--primary-color);color:#fff}
+.strip button .n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--warning-color);color:#1d1b16;font-size:11px;font-weight:700}
+.strip button:focus-visible,.dock button:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
+.frame{flex:1;min-height:0;display:flex;position:relative}
+.sidebar{flex:none;width:256px;display:flex;flex-direction:column;background:var(--sidebar-bg);border-right:1px solid var(--divider-color)}
+.sidebar .home{display:flex;align-items:center;height:56px;padding:0 20px;font-size:20px;border-bottom:1px solid var(--divider-color)}
+.sidebar nav{display:grid;gap:2px;padding:8px}
+.sidebar a{display:flex;align-items:center;gap:20px;height:44px;padding:0 12px;border-radius:8px;color:var(--primary-text-color);text-decoration:none;font-size:14px;font-weight:500}
+.sidebar a svg{color:var(--secondary-text-color)}
+.sidebar a[aria-current]{background:var(--sidebar-active);color:var(--primary-color)}
+.sidebar a[aria-current] svg{color:var(--primary-color)}
+.sidebar a:focus-visible{outline:2px solid var(--primary-color)}
+.sidebar .grow{flex:1}
+main{flex:1;min-width:0;min-height:0;position:relative}
+menu-semanal-panel{display:block;height:100%}
+.scrim{display:none}
+
+/* simulador: la Despensa y la Cesta, para probar el enlace */
+.dock{position:absolute;right:20px;bottom:20px;z-index:10;display:flex;flex-direction:column;width:350px;max-height:min(580px,calc(100% - 40px));border-radius:20px;background:var(--card-background-color);border:1px solid var(--divider-color);box-shadow:0 18px 48px rgba(0,0,0,.28);overflow:hidden}
+.dock[hidden]{display:none}
+.dock header{display:flex;align-items:center;gap:10px;padding:12px 8px 8px 16px}
+.dock h2{flex:1;margin:0;font-size:16px;font-weight:500}
+.dock .x{display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:50%;background:none;cursor:pointer;color:var(--secondary-text-color)}
+.dock .x:hover{background:rgba(127,127,127,.12)}
+.dock .help{margin:0 16px 10px;font-size:12.5px;line-height:1.45;color:var(--secondary-text-color)}
+.dock .body{flex:1;overflow:auto;padding:0 10px 10px}
+.c-item{display:flex;align-items:center;gap:10px;padding:6px;border-radius:12px}
+.c-item .em{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;font-size:21px;background:var(--c1);border:1px solid var(--c2);flex:none}
+.c-item .txt{flex:1;min-width:0}
+.c-item .nm{display:block;font-weight:500}
+.c-item .note{display:block;font-size:12px;color:var(--secondary-text-color)}
+.c-item button{height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--divider-color);background:none;font-weight:500;cursor:pointer;color:var(--primary-color)}
+.c-item button:hover{background:rgba(127,127,127,.08)}
+.c-item .step{display:flex;align-items:center;gap:4px}
+.c-item .step button{width:32px;padding:0;color:inherit}
+.c-item .step output{min-width:44px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.c-item.zero .em{filter:grayscale(.8);opacity:.6}
+.c-empty{padding:18px 8px;text-align:center;color:var(--secondary-text-color);font-size:13px}
+
+@media (max-width:869px){
+  .strip .long{display:none}
+  .sidebar{position:absolute;inset:0 auto 0 0;z-index:20;transform:translateX(-100%);transition:transform .2s ease}
+  .frame.menu-open .sidebar{transform:none;box-shadow:0 0 30px rgba(0,0,0,.25)}
+  .frame.menu-open .scrim{display:block;position:absolute;inset:0;z-index:19;background:rgba(0,0,0,.4)}
+  .dock{left:8px;right:8px;bottom:8px;width:auto;max-height:62%}
+}
+@media (max-width:560px){.strip .lbl{display:none}.strip{padding:8px 10px}}
+@media (prefers-reduced-motion:reduce){.sidebar{transition:none}}
+</style>
+</head>
+<body>
+<div class="strip">
+  <p><strong>Vista previa con recetas de ejemplo.</strong> <span class="long">Pulsa «Generar», «CAMBIO» o «Comprobar disponibilidad de ingredientes». La Despensa y la Cesta son simuladas. Los cambios se pierden al recargar.</span></p>
+  <button type="button" id="open-despensa" aria-pressed="false" title="Despensa simulada"><span class="emoji" aria-hidden="true">🗄️</span><span class="lbl">Despensa</span></button>
+  <button type="button" id="open-cesta" aria-pressed="false" title="Cesta simulada"><span class="emoji" aria-hidden="true">🧺</span><span class="lbl">Cesta</span><span class="n" id="cesta-n" hidden></span></button>
+  <button type="button" id="reset">Reiniciar</button>
+</div>
+<div class="frame" id="frame">
+  <aside class="sidebar" aria-label="Barra lateral de Home Assistant">
+    <div class="home">Casa</div>
+    <nav>
+      <a href="#resumen"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/></svg>Resumen</a>
+      <a href="#cesta"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M22,9H17.21L12.83,2.44C12.64,2.16 12.32,2 12,2C11.68,2 11.36,2.16 11.17,2.45L6.79,9H2C1.45,9 1,9.45 1,10C1,10.09 1,10.18 1.04,10.27L3.58,19.54C3.81,20.38 4.58,21 5.5,21H18.5C19.42,21 20.19,20.38 20.43,19.54L22.97,10.27L23,10C23,9.45 22.55,9 22,9M12,4.79L14.8,9H9.2L12,4.79M18.5,19L5.5,19L3.31,11H20.7L18.5,19M12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17A2,2 0 0,0 14,15A2,2 0 0,0 12,13Z"/></svg>Cesta</a>
+      <a href="#despensa"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M7 2C5.9 2 5 2.9 5 4V19C5 20.11 5.9 21 7 21V22H9V21H15V22H17V21C18.11 21 19 20.11 19 19V4C19 2.9 18.11 2 17 2H7M7 4H17V7H7V4M7 9H17V12H7V9M7 14H11V19H7V14M13 14H17V19H13V14M8 15V18H10V15H8M14 15V18H16V15H14Z"/></svg>Despensa</a>
+      <a href="#menu-semanal" aria-current="page"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M6,1H8V3H16V1H18V3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1M5,8V19H19V8H5M7,10H17V12H7V10Z"/></svg>Menú Semanal</a>
+      <a href="#energia"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M11,15H6L13,1V9H18L11,23V15Z"/></svg>Energía</a>
+    </nav>
+    <div class="grow"></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <main>
+    <menu-semanal-panel></menu-semanal-panel>
+    <section class="dock" id="dock-despensa" aria-label="Despensa simulada" hidden>
+      <header><h2>Despensa (simulada)</h2><button type="button" class="x" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg></button></header>
+      <p class="help">Lo que hay en casa. Cambia el stock y vuelve a pulsar «Comprobar disponibilidad de ingredientes».</p>
+      <div class="body" id="despensa-list"></div>
+    </section>
+    <section class="dock" id="dock-cesta" aria-label="Cesta simulada" hidden>
+      <header><h2>Cesta (simulada)</h2><button type="button" class="x" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg></button></header>
+      <p class="help">Lo que añade el menú llega con su cantidad («2 paquetes»). Al marcarlo como comprado, la Despensa suma esas unidades.</p>
+      <div class="body" id="cesta-list"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+window.MENU_DATA = /*MENU_DATA*/;
+</script>
+<script>
+/*MOCK_JS*/
+</script>
+<script type="module">
+/*MENU_JS*/
+</script>
+<script type="module">
+  const { hass, backend } = window.MenuDemo;
+  const panel = document.querySelector("menu-semanal-panel");
+  const frame = document.getElementById("frame");
+  const narrowQuery = matchMedia("(max-width: 869px)");
+  const syncNarrow = () => {
+    panel.narrow = narrowQuery.matches;
+    if (!narrowQuery.matches) frame.classList.remove("menu-open");
+  };
+  narrowQuery.addEventListener("change", syncNarrow);
+  syncNarrow();
+  panel.hass = hass;
+  panel.addEventListener("hass-toggle-menu", () => frame.classList.toggle("menu-open"));
+  document.getElementById("scrim").addEventListener("click", () => frame.classList.remove("menu-open"));
+  document.querySelectorAll(".sidebar a").forEach((a) =>
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      frame.classList.remove("menu-open");
+    })
+  );
+
+  /* ---- simulador */
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const DEPTS = window.MENU_DATA.departments;
+  const tint = (id) => {
+    const hex = (DEPTS.find((d) => d.id === id) || { color: "#78909C" }).color;
+    const n = parseInt(hex.slice(1), 16);
+    const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    return `--c1:rgba(${r},${g},${b},.15);--c2:rgba(${r},${g},${b},.34)`;
+  };
+  const docks = { despensa: document.getElementById("dock-despensa"), cesta: document.getElementById("dock-cesta") };
+  const toggles = { despensa: document.getElementById("open-despensa"), cesta: document.getElementById("open-cesta") };
+  const show = (which) => {
+    for (const k of Object.keys(docks)) {
+      const on = k === which && docks[k].hidden;
+      docks[k].hidden = !on;
+      toggles[k].setAttribute("aria-pressed", String(on));
+    }
+  };
+  toggles.despensa.addEventListener("click", () => show("despensa"));
+  toggles.cesta.addEventListener("click", () => show("cesta"));
+  document.querySelectorAll("[data-close]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const dock = b.closest(".dock");
+      dock.hidden = true;
+      toggles[dock.id === "dock-cesta" ? "cesta" : "despensa"].setAttribute("aria-pressed", "false");
+    })
+  );
+
+  const cestaList = document.getElementById("cesta-list");
+  const cestaN = document.getElementById("cesta-n");
+  backend.subscribeCesta((items) => {
+    cestaN.hidden = !items.length;
+    cestaN.textContent = items.length;
+    cestaList.innerHTML = items.length
+      ? items
+          .map(
+            (i) => `<div class="c-item"><span class="em emoji" style="${tint(i.department)}">${esc(i.icon)}</span>
+          <span class="txt"><span class="nm">${esc(i.name)}</span>${i.note ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
+          <button type="button" data-buy="${esc(i.id)}">Comprado</button></div>`
+          )
+          .join("")
+      : `<div class="c-empty">La Cesta está vacía. En el menú, pulsa «Comprobar disponibilidad de ingredientes» y luego «Añadir».</div>`;
+  });
+  cestaList.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-buy]");
+    if (b) backend.cestaPurchase(b.dataset.buy);
+  });
+
+  const pantryList = document.getElementById("despensa-list");
+  const unitFor = (unit, n) => {
+    unit = String(unit || "").trim();
+    if (!unit) return "";
+    if (n !== 1 || unit.length < 3 || !unit.endsWith("s")) return unit;
+    return /[dlnzj]es$/.test(unit) && unit.length > 4 ? unit.slice(0, -2) : unit.slice(0, -1);
+  };
+  backend.subscribePantry((items) => {
+    const order = DEPTS.map((d) => d.id);
+    pantryList.innerHTML = [...items]
+      .sort((a, b) => order.indexOf(a.department) - order.indexOf(b.department) || a.name.localeCompare(b.name, "es"))
+      .map(
+        (i) => `<div class="c-item ${i.stock ? "" : "zero"}"><span class="em emoji" style="${tint(i.department)}">${esc(i.icon)}</span>
+          <span class="txt"><span class="nm">${esc(i.name)}</span><span class="note">${i.stock ? `${i.stock} ${esc(unitFor(i.unit, i.stock) || (i.stock === 1 ? "ud" : "uds"))}` : "Agotado"}</span></span>
+          <span class="step"><button type="button" data-adj="-1" data-id="${esc(i.id)}" aria-label="Quitar uno">−</button><button type="button" data-adj="1" data-id="${esc(i.id)}" aria-label="Añadir uno">+</button></span></div>`
+      )
+      .join("");
+  });
+  pantryList.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-adj]");
+    if (b) backend.pantryAdjust(b.dataset.id, Number(b.dataset.adj));
+  });
+  document.getElementById("reset").addEventListener("click", () => backend.reset());
+</script>
+</body>
+</html>
